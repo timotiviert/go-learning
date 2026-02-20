@@ -22,7 +22,7 @@ func WordCount(s string) map[string]int {
 	for _, word := range words {
 		count[word]++
 	}
-	
+
 	return count
 }
 
