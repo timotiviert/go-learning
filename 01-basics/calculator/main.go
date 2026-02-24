@@ -1,21 +1,12 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
-	//"os"
+	"math"
 	"strconv"
-	//"os"
-	//"strconv"
-)
-
-const (
-	methodAddition       = "+"
-	methodSubtraction    = "-"
-	methodMultiplication = "x"
-	methodDivision       = "/"
-	methodModulus        = "%"
 )
 
 func main() {
@@ -34,33 +25,38 @@ func main() {
 		log.Fatal("invalid argument: a must be a number")
 	}
 
-	method := args[1]
+	op := args[1]
 
 	b, err := strconv.ParseFloat(args[2], 64)
 	if err != nil {
 		log.Fatal("invalid argument: b must be a number")
 	}
 
-	// The result.
-	var c float64
+	result, err := calculate(a, b, op)
 
-	switch method {
-	case methodAddition:
-		c = a + b
-	case methodSubtraction:
-		c = a - b
-	case methodMultiplication:
-		c = a * b
-	case methodDivision:
-		if b == 0.0 {
-			log.Fatal("division by zero")
-		}
-		c = a / b
-	case methodModulus:
-		c = a * b
-	default:
-		log.Fatal("invalid argument: method must be +, -, x, / or %")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	fmt.Println(c)
+	fmt.Println(result)
+}
+
+func calculate(a, b float64, op string) (float64, error) {
+	switch op {
+	case "+":
+		return a + b, nil
+	case "-":
+		return a - b, nil
+	case "x", "*":
+		return a * b, nil
+	case "/":
+		if b == 0.0 {
+			return 0, errors.New("division by zero")
+		}
+		return a / b, nil
+	case "%":
+		return math.Mod(a, b), nil
+	default:
+		return 0, errors.New("invalid argument: operation must be one of +, -, x, / or %")
+	}
 }
