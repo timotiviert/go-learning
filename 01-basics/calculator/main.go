@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
+	"log"
+	//"os"
 	"strconv"
 	//"os"
 	//"strconv"
@@ -17,35 +18,27 @@ const (
 	methodModulus        = "%"
 )
 
-func exit(s string) {
-	fmt.Println(s)
-	os.Exit(1)
-}
-
 func main() {
-	//var file string
-	//flag.StringVar(&file, "file", "-", "output file name")
+	log.SetFlags(0)
 	flag.Parse()
 
-	//fmt.Println("file:", file)
+	args := flag.Args()
 
-	//for _, arg := range flag.Args() {
-	//	fmt.Printf("%s\n", arg)
-	//}
-
-	if flag.NArg() != 3 {
-		exit("usage: calculator -file <file> <a> <operand> <b>")
+	if len(args) != 3 {
+		log.Fatal("usage: calculator -file <file> <a> <operand> <b>")
 	}
 
 	// Parsing of a, method and b.
-	a, err := strconv.ParseFloat(flag.Arg(0), 64)
+	a, err := strconv.ParseFloat(args[0], 64)
 	if err != nil {
-		exit("invalid argument: a must be a number")
+		log.Fatal("invalid argument: a must be a number")
 	}
-	method := flag.Arg(1)
-	b, err := strconv.ParseFloat(flag.Arg(2), 64)
+
+	method := args[1]
+
+	b, err := strconv.ParseFloat(args[2], 64)
 	if err != nil {
-		exit("invalid argument: b must be a number")
+		log.Fatal("invalid argument: b must be a number")
 	}
 
 	// The result.
@@ -60,15 +53,14 @@ func main() {
 		c = a * b
 	case methodDivision:
 		if b == 0.0 {
-			exit("division by zero")
+			log.Fatal("division by zero")
 		}
 		c = a / b
 	case methodModulus:
 		c = a * b
 	default:
-		exit("invalid argument: method must be +, -, x, / or %")
+		log.Fatal("invalid argument: method must be +, -, x, / or %")
 	}
 
 	fmt.Println(c)
-
 }
