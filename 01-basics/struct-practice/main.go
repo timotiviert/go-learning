@@ -9,30 +9,27 @@ import (
 )
 
 type User struct {
-	Id    int    `json:"id"`
+	ID    int    `json:"id"`
 	Name  string `json:"username"`
 	Email string `json:"email"`
 	Age   int    `json:"age"`
 }
 
-func New(name string, email string, age int) *User {
+func New(name string, email string, age int) (*User, error) {
 	_, err := mail.ParseAddress(email)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	return &User{
-		Id:    rand.Intn(100),
+		ID:    rand.Intn(100),
 		Name:  name,
 		Email: email,
 		Age:   age,
-	}
+	}, nil
 }
 
-func (u User) IsAdult() bool {
-	if u.Age >= 18 {
-		return true
-	}
-	return false
+func (u *User) IsAdult() bool {
+	return u.Age >= 18
 }
 
 func (u *User) UpdateEmail(email string) error {
@@ -62,12 +59,18 @@ func NewFromJSON(jsonData []byte) (*User, error) {
 }
 
 func main() {
-	gandalf := New("Gandalf the Grey", "mithrandir@wizzard.com", 2000)
+	gandalf, err := New("Gandalf the Grey", "mithrandir@wizzard.com", 2000)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(*gandalf)
+
 	gandalfJSON, err := UserToJSON(gandalf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(string(gandalfJSON))
+
 	frodoJSON := `{"username": "Frodo", "email": "frodo.baggins@shire.com", "age": 18}`
 	frodo, err := NewFromJSON([]byte(frodoJSON))
 	if err != nil {
