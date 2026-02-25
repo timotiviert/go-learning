@@ -4,13 +4,16 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math"
+	"os"
 	"strconv"
 )
 
 func main() {
 	log.SetFlags(0)
+	file := flag.String("file", "", "input file")
 	flag.Parse()
 
 	args := flag.Args()
@@ -38,7 +41,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(result)
+	var out io.Writer = os.Stdout
+	if *file != "" {
+		f, err := os.Create(*file)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		out = f
+	}
+
+	fmt.Fprintln(out, result)
 }
 
 func calculate(a, b float64, op string) (float64, error) {
