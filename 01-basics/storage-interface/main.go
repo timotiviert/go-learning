@@ -30,7 +30,6 @@ func NewFileStorage() (*FileStorage, error) {
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return nil, err
-
 	}
 
 	return &FileStorage{
@@ -40,12 +39,10 @@ func NewFileStorage() (*FileStorage, error) {
 
 func (fs *FileStorage) Save(key, value string) error {
 	path := filepath.Join(fs.Dir, key)
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	err := os.WriteFile(path, []byte(value), 0644)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	fmt.Fprintln(f, value)
 	return nil
 }
 
