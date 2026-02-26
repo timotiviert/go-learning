@@ -55,19 +55,54 @@ func (fs *FileStorage) Load(key string) (string, error) {
 	return string(content), nil
 }
 
+type MemoryStorage struct {
+	Map map[string]string
+}
+
+func NewMemoryStorage() *MemoryStorage {
+	return &MemoryStorage{
+		Map: make(map[string]string),
+	}
+}
+
+func (ms *MemoryStorage) Save(key, value string) error {
+	ms.Map[key] = value
+	return nil
+}
+
+func (ms *MemoryStorage) Load(key string) (string, error) {
+	value, ok := ms.Map[key]
+	if !ok {
+		return "", errors.New("key not found")
+	}
+	return value, nil
+}
+
 func main() {
-	var fs Storage
+	var fs, ms Storage
 
 	fs, err := NewFileStorage()
 	if err != nil {
-		log.Fatal()
-	}
-
-	if err := fs.Save("key", "hi"); err != nil {
 		log.Fatal(err)
 	}
 
-	value, err := fs.Load("key")
+	ms = NewMemoryStorage()
+
+	if err := fs.Save("type", "FileStorage"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := ms.Save("type", "MemoryStorage"); err != nil {
+		log.Fatal(err)
+	}
+
+	value, err := fs.Load("type")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(value)
+
+	value, err = ms.Load("type")
 	if err != nil {
 		log.Fatal(err)
 	}
