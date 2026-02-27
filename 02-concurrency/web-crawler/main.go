@@ -1,3 +1,4 @@
+// Exercise from https://go.dev/tour/concurrency/10
 package main
 
 import (
@@ -45,6 +46,10 @@ func Crawl(url string, depth int, fetcher Fetcher) {
 		body, urls, err := fetcher.Fetch(url)
 		if err != nil {
 			// Could not fetch, so set URL to false in fetched, another worker might try again.
+			// I intended to retry when i.e. the connection failed, but that also means it will be fetched again when
+			// URL returned 404, which should not be the case. Soooo, we probably would need to inspect the error (i.e.
+			// check HTTP code). To strictly not fetch a URL twice, I should not set fetched false for the URL again,
+			// but I think for this exercise it's enough.
 			mu.Lock()
 			fetched[url] = false
 			mu.Unlock()
