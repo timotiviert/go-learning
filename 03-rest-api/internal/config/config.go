@@ -61,6 +61,7 @@ func getEnvRequired(key string) string {
 		return v
 	}
 	log.Fatalf("required environment variable %s not set", key)
+	return ""
 }
 
 func getDatabaseDSN() (string, error) {
