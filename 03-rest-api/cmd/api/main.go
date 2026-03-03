@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"log"
 	//"net/http"
 	//
 	//"github.com/gin-gonic/gin"
 
 	"github.com/timotiviert/go-learning/03-rest-api/internal/config"
+	"github.com/timotiviert/go-learning/03-rest-api/internal/database"
 )
 
 func main() {
@@ -15,7 +16,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-	fmt.Println(cfg.DbConnString)
+
+	_, err = database.New(cfg.DBConnString)
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
 
 	//r := gin.Default()
 	//

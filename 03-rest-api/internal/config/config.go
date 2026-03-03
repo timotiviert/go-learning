@@ -30,7 +30,7 @@ func (l LogLevel) IsValid() bool {
 
 type Config struct {
 	SeverPort    int
-	DbConnString string
+	DBConnString string
 	JWTSecret    string
 	LogLevel     string
 }
@@ -47,7 +47,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid SERVER_PORT %s: %w", sp, err)
 	}
 
-	dsn, err := getPGConnString()
+	connString, err := getPGConnString()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get database DSN: %w", err)
 	}
@@ -64,7 +64,7 @@ func Load() (*Config, error) {
 
 	return &Config{
 		SeverPort:    sp,
-		DbConnString: dsn,
+		DBConnString: connString,
 		JWTSecret:    jwt,
 		LogLevel:     lvl,
 	}, nil
