@@ -29,10 +29,10 @@ func (l LogLevel) IsValid() bool {
 }
 
 type Config struct {
-	SeverPort   int
-	DatabaseDSN string
-	JWTSecret   string
-	LogLevel    string
+	SeverPort    int
+	DbConnString string
+	JWTSecret    string
+	LogLevel     string
 }
 
 func Load() (*Config, error) {
@@ -47,7 +47,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid SERVER_PORT %s: %w", sp, err)
 	}
 
-	dsn, err := getDatabaseDSN()
+	dsn, err := getPGConnString()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get database DSN: %w", err)
 	}
@@ -63,10 +63,10 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		SeverPort:   sp,
-		DatabaseDSN: dsn,
-		JWTSecret:   jwt,
-		LogLevel:    lvl,
+		SeverPort:    sp,
+		DbConnString: dsn,
+		JWTSecret:    jwt,
+		LogLevel:     lvl,
 	}, nil
 }
 
@@ -77,6 +77,21 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
-func getDatabaseDSN() (string, error) {
-	return "", nil
+func getPGConnString() (string, error) {
+	host := getEnv("PG_HOST", "localhost")
+	port := getEnv("PG_PORT", "5432")
+	user := os.Getenv("PG_USER")
+	if user == "" {
+		return "", fmt.Errorf("required environment variable PG_USER is missing")
+	}
+	password := os.Getenv("PG_PASSWORD")
+	if password == "" {
+		return "", fmt.Errorf("required environment variable PG_PASSWORD is missing")
+	}
+	database := os.Getenv("PG_DATABASE")
+	if database == "" {
+		return "", fmt.Errorf("required environment variable PG_DATABASE is missing")
+	}
+
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s", user, password, host, port, database), nil
 }
