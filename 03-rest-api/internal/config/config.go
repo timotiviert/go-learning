@@ -4,17 +4,29 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
 
+type LogLevel string
+
 const (
-	LogLevelInfo  = "INFO"
+	LogLevelTrace = "TRACE"
 	LogLevelDebug = "DEBUG"
+	LogLevelInfo  = "INFO"
+	LogLevelWarn  = "WARN"
 	LogLevelError = "ERROR"
 	LogLevelFatal = "FATAL"
-	LogLevelPanic = "PANIC"
 )
+
+func (l LogLevel) IsValid() bool {
+	switch l {
+	case LogLevelTrace, LogLevelDebug, LogLevelInfo, LogLevelWarn, LogLevelError, LogLevelFatal:
+		return true
+	}
+	return false
+}
 
 type Config struct {
 	SeverPort   int
@@ -45,7 +57,10 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("required environment variable JWT_SECRET is missing")
 	}
 
-	lvl := getEnv("LOG_LEVEL", LogLevelInfo)
+	lvl := strings.ToUpper(getEnv("LOG_LEVEL", LogLevelInfo))
+	if !LogLevel(lvl).IsValid() {
+		return nil, fmt.Errorf("invalid LOG_LEVEL %s", lvl)
+	}
 
 	return &Config{
 		SeverPort:   sp,
