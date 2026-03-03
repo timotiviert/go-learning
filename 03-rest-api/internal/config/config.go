@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -25,27 +25,33 @@ type Config struct {
 
 func Load() (*Config, error) {
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("failed to load .env file: %v", err)
+		return nil, fmt.Errorf("failed to load .env file: %w", err)
 	}
 
 	// Maybe Get per property makes sense, as almost all need some parsing (i.e. port to int etc.)
-
-	sp, err := strconv.Atoi(getEnv("SEVER_PORT", "8080"))
-
+	pStr := getEnv("SERVER_PORT", "8080")
+	sp, err := strconv.Atoi(pStr)
 	if err != nil {
-		log.Fatalf("failed to parse sever port: %v", err)
+		return nil, fmt.Errorf("invalid SERVER_PORT %s: %w", sp, err)
 	}
 
 	dsn, err := getDatabaseDSN()
 	if err != nil {
-		log.Fatalf("failed to get database DSN: %v", err)
+		return nil, fmt.Errorf("failed to get database DSN: %w", err)
 	}
+
+	jwt := os.Getenv("JWT_SECRET")
+	if jwt == "" {
+		return nil, fmt.Errorf("required environment variable JWT_SECRET is missing")
+	}
+
+	lvl := getEnv("LOG_LEVEL", LogLevelInfo)
 
 	return &Config{
 		SeverPort:   sp,
 		DatabaseDSN: dsn,
-		JWTSecret:   getEnvRequired("JWT_SECRET"),
-		LogLevel:    getEnv("LOG_LEVEL", LogLevelInfo),
+		JWTSecret:   jwt,
+		LogLevel:    lvl,
 	}, nil
 }
 
@@ -54,14 +60,6 @@ func getEnv(key, defaultValue string) string {
 		return v
 	}
 	return defaultValue
-}
-
-func getEnvRequired(key string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	log.Fatalf("required environment variable %s not set", key)
-	return ""
 }
 
 func getDatabaseDSN() (string, error) {
