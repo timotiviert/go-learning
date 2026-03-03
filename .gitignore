@@ -25,7 +25,7 @@ go.work
 go.work.sum
 
 # env file
-.env
+03-rest-api/.env
 
 # Editor/IDE
 .idea/
