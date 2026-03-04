@@ -3,13 +3,12 @@ package database
 import (
 	"context"
 
-	"github.com/timotiviert/go-learning/03-rest-api/internal/auth"
 	"github.com/timotiviert/go-learning/03-rest-api/internal/models"
 )
 
 // Interface for decoupling :)) -> can test with mocks and exchange Db, if necessary.
 type UserRepository interface {
-	Create(user *models.RegisterUsers) (*models.User, error)
+	Create(email, username, hashedPassword string) (*models.User, error)
 	GetByEmail(email string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 }
@@ -24,18 +23,12 @@ func NewUserRepository(db *DB) UserRepository {
 	}
 }
 
-func (r *postgresUserRepository) Create(user *models.RegisterUsers) (*models.User, error) {
+func (r *postgresUserRepository) Create(email, username, hashedPassword string) (*models.User, error) {
 	var u models.User
 
-	// Hash password using bcrypt.
-	ph, err := auth.HashPassword(user.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.db.Pool.QueryRow(context.Background(),
+	err := r.db.Pool.QueryRow(context.Background(),
 		"INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING id, email, username",
-		user.Email, user.Username, string(ph),
+		email, username, hashedPassword,
 	).Scan(&u.ID, &u.Email, &u.Username)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/timotiviert/go-learning/03-rest-api/internal/auth"
 	"github.com/timotiviert/go-learning/03-rest-api/internal/database"
 	"github.com/timotiviert/go-learning/03-rest-api/internal/models"
 )
@@ -16,5 +17,10 @@ func New(r database.UserRepository) *UserService {
 }
 
 func (s *UserService) Create(user *models.RegisterUsers) (*models.User, error) {
-	return s.repo.Create(user)
+	// Hash password using bcrypt.
+	hashedPassword, err := auth.HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	return s.repo.Create(user.Email, user.Username, hashedPassword)
 }
