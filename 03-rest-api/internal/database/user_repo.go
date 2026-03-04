@@ -3,8 +3,7 @@ package database
 import (
 	"context"
 
-	"golang.org/x/crypto/bcrypt"
-
+	"github.com/timotiviert/go-learning/03-rest-api/internal/auth"
 	"github.com/timotiviert/go-learning/03-rest-api/internal/models"
 )
 
@@ -29,7 +28,7 @@ func (r *postgresUserRepository) Create(user *models.RegisterUsers) (*models.Use
 	var u models.User
 
 	// Hash password using bcrypt.
-	ph, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	ph, err := auth.HashPassword(user.Password)
 	if err != nil {
 		return nil, err
 	}
