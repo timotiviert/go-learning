@@ -24,3 +24,11 @@ func (s *UserService) Create(user *models.RegisterUsers) (*models.User, error) {
 	}
 	return s.repo.Create(user.Email, user.Username, hashedPassword)
 }
+
+func (s *UserService) GetByEmail(email string) (*models.User, error) {
+	return s.repo.GetByEmail(email)
+}
+
+func (s *UserService) GetByUsername(username string) (*models.User, error) {
+	return s.repo.GetByUsername(username)
+}
